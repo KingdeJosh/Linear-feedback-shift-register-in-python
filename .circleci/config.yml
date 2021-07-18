@@ -37,5 +37,5 @@ jobs:
           # pip-dependency-file: test-requirements.txt  # if you have a different name for your requirements file, maybe one that combines your runtime and test requirements.
       - run: 
           command: |
-              pipenv run python LFSR.py test
+              pipenv run python LFSR.py 
           
