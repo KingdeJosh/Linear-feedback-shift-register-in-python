@@ -200,7 +200,4 @@ jobs:
 workflows:
   build_test_deploy:
     jobs:
-      - commands
-      - commit-analysis:
-          requires:
-            - commands
+      - analyze
