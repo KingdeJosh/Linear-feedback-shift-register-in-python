@@ -197,3 +197,10 @@ jobs:
           github_repository: << parameters.github_repository >>
           projectBaseDir: ./
 
+workflows:
+  build_test_deploy:
+    jobs:
+      - commands
+      - commit-analysis:
+          requires:
+            - commands
