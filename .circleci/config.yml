@@ -16,17 +16,15 @@ jobs:
       
   build_push_image:
     docker:
-      - image: circleci/python:3.9.0
+      - image: circleci/buildpack-deps:stretch
     environment:
       IMAGE_NAME: ariv3ra/orb-snyk
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
+      - setup_remote_docker
       - run:
-          name: Build and Push Docker image to Docker Hub
           command: docker build -t $IMAGE_NAME:latest .
-         
+          name: Build Docker image 
       - snyk/scan:
           fail-on-issues: true
           monitor-on-build: true
