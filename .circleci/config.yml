@@ -16,7 +16,7 @@ jobs:
       
   build_push_image:
     docker:
-      - image: circleci/python:3.9.0
+      - image: circleci/buildpack-deps:stretch
     steps:
       - checkout
       - setup_remote_docker:
