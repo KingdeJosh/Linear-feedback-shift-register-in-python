@@ -4,7 +4,7 @@ orbs:
 jobs:
   build_test:
     docker:
-      - image: circleci/python:3.7.4
+      - image: circleci/python:3.9.0
     steps:
       - checkout
       - run:
@@ -16,7 +16,7 @@ jobs:
       
   build_push_image:
     docker:
-      - image: circleci/python:3.7.4
+      - image: circleci/python:3.9.0
     steps:
       - checkout
       - setup_remote_docker:
@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Build and Push Docker image to Docker Hub
           command: |
-            echo 'export PATH=~$PATH:~/.local/bin' >> $BASH_ENV
+            echo 'export PATH=~$PATH:~/./local/bin' >> $BASH_ENV
             echo 'export TAG=${CIRCLE_SHA1}' >> $BASH_ENV
             echo 'export IMAGE_NAME=orb-snyk' >> $BASH_ENV && source $BASH_ENV
             pip install --user -r requirements.txt
