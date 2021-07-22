@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Build and Push Docker image to Docker Hub
           command: |
-            echo 'export PATH=~$PATH:~/./local/bin' >> $BASH_ENV
+            echo 'export PATH=~$PATH:~/.local/bin' >> $BASH_ENV
             echo 'export TAG=${CIRCLE_SHA1}' >> $BASH_ENV
             echo 'export IMAGE_NAME=orb-snyk' >> $BASH_ENV && source $BASH_ENV
             pip install --user -r requirements.txt
