@@ -16,15 +16,25 @@ jobs:
       
   build_push_image:
     docker:
-      - image: circleci/buildpack-deps:stretch
+      - image: circleci/python:3.9.0
     environment:
       IMAGE_NAME: ariv3ra/orb-snyk
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run:
-          command: docker build -t $IMAGE_NAME:latest .
-          name: Build Docker image 
+          name: Build and Push Docker image to Docker Hub
+          command: |
+            echo 'export PATH=~$PATH:~/.local/bin' >> $BASH_ENV
+            echo 'export TAG=${CIRCLE_SHA1}' >> $BASH_ENV
+            echo 'export IMAGE_NAME=orb-snyk' >> $BASH_ENV && source $BASH_ENV
+            pip install --user -r requirements.txt
+            pyinstaller -F LFSR.py
+            echo '$DOCKER_LOGIN/$IMAGE_NAME -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG'
+            docker build -t $DOCKER_LOGIN/$IMAGE_NAME -f $DOCKER_LOGIN/$IMAGE_NAME:$TAG .
+
+         
       - snyk/scan:
           fail-on-issues: true
           monitor-on-build: true
