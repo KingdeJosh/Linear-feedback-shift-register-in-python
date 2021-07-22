@@ -29,6 +29,7 @@ jobs:
             echo 'export IMAGE_NAME=orb-snyk' >> $BASH_ENV && source $BASH_ENV
             pip install --user -r requirements.txt
             pyinstaller -F LFSR.py
+            echo '$DOCKER_LOGIN/$IMAGE_NAME -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG'
             docker build -t $DOCKER_LOGIN/$IMAGE_NAME -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG .
       - snyk/scan:
           fail-on-issues: true
