@@ -17,6 +17,8 @@ jobs:
   build_push_image:
     docker:
       - image: circleci/python:3.9.0
+    environment:
+      IMAGE_NAME: ariv3ra/orb-snyk
     steps:
       - checkout
       - setup_remote_docker:
@@ -30,7 +32,7 @@ jobs:
             pip install --user -r requirements.txt
             pyinstaller -F LFSR.py
             echo '$DOCKER_LOGIN/$IMAGE_NAME -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG'
-            docker build -t $IMAGE_NAME:latest .
+            docker build -t $DOCKER_LOGIN/$IMAGE_NAME -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG .
       - snyk/scan:
           fail-on-issues: true
           monitor-on-build: true
