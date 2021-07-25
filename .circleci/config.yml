@@ -33,14 +33,14 @@ commands:
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
     parameters:
-      organization:
-        type: string
+      type: env_var_name
+        default: SONARQUBE_SERVER_ORGANIZATION
       host_url:
-        type: url
-        default: http://192.168.2.176:9000
+        type: env_var_name
+        default: SONARQUBE_SERVER_URL
       login:
-        type: string
-        default: "7df2331bd7eedd5398bfed19d7b519b9156815d4"
+        type: env_var_name
+        default: SONARQUBE_SERVER_LOGIN
       projectKey:
         type: string
         default: "Sonartest"
