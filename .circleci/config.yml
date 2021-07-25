@@ -106,10 +106,10 @@ commands:
             else
               echo "In else"
               eval ./sonar-scanner-<<parameters.engine-version>>/bin/sonar-scanner \
-              -Dsonar.projectKey=<<parameters.system-code>> \
+              -Dsonar.projectKey=${<<parameters.system-code>>} \
               -Dsonar.sources=. \
-              -Dsonar.host.url=<<parameters.server-url>> \
-              -Dsonar.login=<<parameters.token>> \
+              -Dsonar.host.url=${<<parameters.server-url>>} \
+              -Dsonar.login=${<<parameters.token>>} \
               -Dsonar.pullrequest.key=<<parameters.pull-request-key>> \
               -Dsonar.pullrequest.branch=<<parameters.pull-request-branch>> \
               -Dsonar.pullrequest.base=<<parameters.pull-request-base>>
