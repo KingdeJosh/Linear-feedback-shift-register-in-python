@@ -50,10 +50,6 @@ commands:
       sources:
         type: string
         default: "."
-      github_oauth:
-        type: string
-      github_repository:
-        type: string
       runner_opts:
         type: string
         default: "-Xms1024m -Xmx4096m"
