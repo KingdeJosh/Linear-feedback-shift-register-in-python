@@ -33,7 +33,8 @@ commands:
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
     parameters:
-      type: env_var_name
+      organization:
+        type: env_var_name
         default: SONARQUBE_SERVER_ORGANIZATION
       host_url:
         type: env_var_name
