@@ -87,7 +87,7 @@ jobs:
         default: SONARQUBE_SERVER_LOGIN
       projectKey:
         type: env_var_name
-        default: SONARQUBE_PROJECT_KEY #CIRCLE_PROJECT_REPONAME
+        default: SONARQUBE_PROJECT_KEY #CIRCLE_PROJECT_REPONAME --
       projectVersion:
         type: env_var_name
         default: CIRCLE_BUILD_NUM
