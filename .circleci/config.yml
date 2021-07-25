@@ -1,45 +1,123 @@
+# This code is licensed from CircleCI to the user under the MIT license.
+# See here for details: https://circleci.com/developer/orbs/licensing
 version: 2.1
-orbs:
-  snyk: snyk/snyk@1.0.1
+
+executors:
+  scanner:
+    docker:
+      - image: alpine:latest
+
+commands:
+  setup-environment:
+    description: "Setup requirements"
+    steps:
+      - run:
+          name: "Setup environment"
+          command: |
+            apk update
+            apk add --no-cache zip openjdk11-jre-headless
+
+  install-engine:
+    description: "Install Sonarqube scanner"
+    parameters:
+      engine_version:
+        type: string
+        default: "4.6.2.2472"
+    steps:
+      - run:
+          name: "Install Sonarqube scanner"
+          command: |
+            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-<< parameters.engine_version >>.zip
+            unzip sonar-scanner-cli-<< parameters.engine_version >>.zip
+
+  code-analysis:
+    description: "Run Sonarqube scanner for code analysis"
+    parameters:
+      organization:
+        type: string
+      host_url:
+        type: string
+        default: "http://192.168.2.176:9000"
+      login:
+        type: string
+        default: "7df2331bd7eedd5398bfed19d7b519b9156815d4"
+      projectKey:
+        type: string
+        default: "Sonartest"
+      projectBaseDir:
+        type: string
+        default: "/root/circleci-build"
+      sources:
+        type: string
+        default: "."
+      github_oauth:
+        type: string
+      github_repository:
+        type: string
+      runner_opts:
+        type: string
+        default: "-Xms1024m -Xmx4096m"
+      exclusions:
+        type: string
+        default: "**/*.yaml,**/*.yml"
+      engine_version:
+        type: string
+        default: "4.6.2.2472"
+    steps:
+      - run:
+          name: "Code analysis"
+          command: |
+            export SONAR_RUNNER_OPTS="<< parameters.runner_opts >>"
+            eval ./sonar-scanner-<< parameters.engine_version >>/bin/sonar-scanner \
+              -Dsonar.host.url=${<< parameters.host_url >>} \
+              -Dsonar.login=${<< parameters.login >>} \
+              -Dsonar.projectKey=${<< parameters.projectKey >>} \
+              -Dsonar.projectBaseDir=<< parameters.projectBaseDir >> \
+              -Dsonar.sources=<< parameters.sources >> \
+              -Dsonar.exclusions="<< parameters.exclusions >>"
+
+  
 jobs:
-  build_test:
-    docker:
-      - image: circleci/python:3.9.0
+  analyze:
+    parameters:
+      organization:
+        type: env_var_name
+        default: SONARQUBE_SERVER_ORGANIZATION
+      host_url:
+        type: env_var_name
+        default: SONARQUBE_SERVER_URL
+      login:
+        type: env_var_name
+        default: SONARQUBE_SERVER_LOGIN
+      projectKey:
+        type: env_var_name
+        default: CIRCLE_PROJECT_REPONAME
+      projectVersion:
+        type: env_var_name
+        default: CIRCLE_BUILD_NUM
+      github_oauth:
+        type: env_var_name
+        default: SONARQUBE_GITHUB_OAUTH
+      github_repository:
+        type: env_var_name
+        default: SONARQUBE_SERVER_ORGANIZATION
+      github_pullRequest:
+        type: env_var_name
+        default: CIRCLECI_PULL_REQUEST_NUMBER
+    executor: scanner
     steps:
       - checkout
-      - run:
-          name: Install Python Dependencies
-          command: |
-            echo 'export PATH=~$PATH:~/.local/bin' >> $BASH_ENV && source $BASH_ENV
-            pip install --user -r requirements.txt
-      - snyk/scan
-      
-  build_push_image:
-    docker:
-      - image: circleci/python:3.9.0
-    environment:
-      IMAGE_NAME: ariv3ra/orb-snyk
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-         
-      - snyk/scan:
-          fail-on-issues: true
-          monitor-on-build: true
-          docker-image-name: $DOCKER_LOGIN/$IMAGE_NAME:$TAG
-          target-file: "Dockerfile"
-          project: ${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}-app
-          organization: ${SNYK_CICD_ORGANIZATION}
-      - run:
-          name: Push Docker image to Docker Hub
-          command: |
-            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-            docker push $DOCKER_LOGIN/$IMAGE_NAME
+      - setup-environment
+      - install-engine
+      - code-analysis:
+          login: << parameters.login >>
+          host_url: <<parameters.host_url >>
+          organization: << parameters.organization >>
+          projectKey: << parameters.projectKey >>
+          projectBaseDir: ./
+
 workflows:
   build_test_deploy:
     jobs:
-      - build_test
-      - build_push_image:
-          requires:
-            - build_test
+      - analyze
+    
