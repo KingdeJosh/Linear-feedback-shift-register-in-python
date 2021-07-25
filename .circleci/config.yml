@@ -36,8 +36,8 @@ commands:
       organization:
         type: string
       host_url:
-        type: string
-        default: "http://192.168.2.176:9000"
+        type: url
+        default: http://192.168.2.176:9000
       login:
         type: string
         default: "7df2331bd7eedd5398bfed19d7b519b9156815d4"
