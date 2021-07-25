@@ -123,7 +123,7 @@ jobs:
         type: string
         default: "4.6.2.2472"
       pull-request-base:
-        default: KingdeJosh-patch-1
+        default: ${CIRCLE_PR_RE}
         description: The pull request base.
         type: string
       pull-request-branch:
@@ -131,7 +131,7 @@ jobs:
         description: The pull request branch.
         type: string
       pull-request-key:
-        default: ${CIRCLE_PULL_REQUEST##*/}
+        default: ${CIRCLE_PULL_REQUEST}
         description: The pull request key.
         type: string
       organization:
