@@ -36,8 +36,8 @@ commands:
       organization:
         type: string
       host_url:
-        type: string
-        default: "http://192.168.2.176:9000"
+        type: url
+        default: http://192.168.2.176:9000
       login:
         type: string
         default: "7df2331bd7eedd5398bfed19d7b519b9156815d4"
@@ -87,7 +87,7 @@ jobs:
         default: SONARQUBE_SERVER_LOGIN
       projectKey:
         type: env_var_name
-        default: CIRCLE_PROJECT_REPONAME
+        default: SONARQUBE_PROJECT_KEY #CIRCLE_PROJECT_REPONAME
       projectVersion:
         type: env_var_name
         default: CIRCLE_BUILD_NUM
