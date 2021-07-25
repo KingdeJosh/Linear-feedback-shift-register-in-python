@@ -32,19 +32,15 @@ commands:
 
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
-    parameters:
+   parameters:
       organization:
-        type: env_var_name
-        default: SONARQUBE_SERVER_ORGANIZATION
+        type: string
       host_url:
-        type: env_var_name
-        default: SONARQUBE_SERVER_URL
+        type: string
       login:
-        type: env_var_name
-        default: SONARQUBE_SERVER_LOGIN
+        type: string
       projectKey:
         type: string
-        default: "Sonartest"
       projectBaseDir:
         type: string
         default: "/root/circleci-build"
