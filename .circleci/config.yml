@@ -32,7 +32,7 @@ commands:
 
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
-   parameters:
+    parameters:
       organization:
         type: string
       host_url:
