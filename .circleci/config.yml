@@ -60,7 +60,6 @@ commands:
       - run:
           name: "Code analysis"
           command: |
-            export SONAR_RUNNER_OPTS="<< parameters.runner_opts >>"
             eval ./sonar-scanner-<< parameters.engine_version >>/bin/sonar-scanner \
               -Dsonar.host.url=${<< parameters.host_url >>} \
               -Dsonar.login=${<< parameters.login >>} \
