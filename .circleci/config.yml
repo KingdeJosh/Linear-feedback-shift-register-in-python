@@ -6,7 +6,7 @@ orbs:
 executors:
   scanner:
     docker:
-      - image: node:latest
+      - image: alphine:latest
 
 commands:
   setup-environment:
