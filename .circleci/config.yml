@@ -6,7 +6,7 @@ orbs:
 executors:
   scanner:
     docker:
-      - image: alpine:latest
+      - image: node:latest
 
 commands:
   setup-environment:
@@ -35,7 +35,7 @@ commands:
           name: Create cache directory if it doesn't exist
       - restore_cache:
           keys:
-            - v<<parameters.cache_version>>-sonarcloud-scanner-4.1.0.1829
+            - v<<parameters.cache_version>>-sonarcloud-scanner-4.6.2.2472
       - run:
           command: |
             set -e
@@ -62,16 +62,21 @@ commands:
           key: v<<parameters.cache_version>>-sonarcloud-scanner-$VERSION
           paths: /tmp/cache/scanner
   
-  
+description: Detect bugs and vulnerabilities in your repository.
+display:
+  home_url: https://www.sonarcloud.io/
+  source_url: https://github.com/SonarSource/sonarcloud-circleci-orb
 jobs:
-  analyze:
-    steps:
+  building: 
+    docker:       
+      - image: buildpack-deps:trusty        
+    steps:       
       - checkout
       - setup-environment
-      - sonarcloud/scan
-
+      - scan
+                        
+                  
 workflows:
   build_test_deploy:
     jobs:
-      - analyze
-    
+      - building    
