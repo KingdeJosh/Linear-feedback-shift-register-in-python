@@ -1,5 +1,3 @@
-# This code is licensed from CircleCI to the user under the MIT license.
-# See here for details: https://circleci.com/developer/orbs/licensing
 version: 2.1
 
 executors:
@@ -16,7 +14,6 @@ commands:
           command: |
             apk update
             apk add --no-cache zip openjdk11-jre-headless
-
   install-engine:
     description: "Install Sonarqube scanner"
     parameters:
@@ -29,7 +26,6 @@ commands:
           command: |
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-<< parameters.engine_version >>.zip
             unzip sonar-scanner-cli-<< parameters.engine_version >>.zip
-
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
     parameters:
@@ -66,25 +62,25 @@ commands:
               -Dsonar.login=${<< parameters.login >>} \
               -Dsonar.projectKey=${<< parameters.projectKey >>} \
               -Dsonar.projectBaseDir=<< parameters.projectBaseDir >> \
+              -Dsonar.organization=${<< parameters.organization >>} \
               -Dsonar.sources=<< parameters.sources >> \
               -Dsonar.exclusions="<< parameters.exclusions >>"
-
   
 jobs:
   analyze:
     parameters:
       organization:
         type: env_var_name
-        default: SONARQUBE_SERVER_ORGANIZATION
+        default: SONAR_ORGANIZATION
       host_url:
         type: env_var_name
-        default: SONARQUBE_SERVER_URL
+        default: SONAR_URL
       login:
         type: env_var_name
-        default: SONARQUBE_SERVER_LOGIN
+        default: SONAR_TOKEN
       projectKey:
         type: env_var_name
-        default: SONARQUBE_PROJECT_KEY #CIRCLE_PROJECT_REPONAME --
+        default: SONAR_PROJECT_KEY #CIRCLE_PROJECT_REPONAME --
       projectVersion:
         type: env_var_name
         default: CIRCLE_BUILD_NUM
@@ -93,7 +89,7 @@ jobs:
         default: SONARQUBE_GITHUB_OAUTH
       github_repository:
         type: env_var_name
-        default: SONARQUBE_SERVER_ORGANIZATION
+        default: SONAR_ORGANIZATION
       github_pullRequest:
         type: env_var_name
         default: CIRCLECI_PULL_REQUEST_NUMBER
@@ -113,4 +109,3 @@ workflows:
   build_test_deploy:
     jobs:
       - analyze
-    
