@@ -179,7 +179,7 @@ jobs:
       - test:
           severity: << parameters.severity >>
           
-  analyze:
+  sonar-analyze:
     parameters:
       organization:
         type: env_var_name
@@ -220,6 +220,6 @@ jobs:
 workflows:
   build_test_deploy:
     jobs:
-      - analyze
+      - sonar-analyze
       - arachni-scan
       - zap-scan
