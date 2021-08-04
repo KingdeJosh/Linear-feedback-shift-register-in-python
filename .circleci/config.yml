@@ -6,6 +6,7 @@ executors:
   scanner:
     docker:
       - image: alpine:latest
+      - image: niemacka/arachni
 
 commands:
   setup-environment:
@@ -16,6 +17,31 @@ commands:
           command: |
             apk update
             apk add --no-cache zip openjdk11-jre-headless
+            
+  setup_arachni:
+    description: downloads and extracts arachni tarball.
+    steps:
+      - run:
+          command: |
+            wget https://github.com/Arachni/arachni/releases/download/v1.5.1/arachni-1.5.1-0.5.12-linux-x86_64.tar.gz; \
+            tar -xvzf arachni-1.5.1-0.5.12-linux-x86_64.tar.gz ; \
+            rm arachni-1.5.1-0.5.12-linux-x86_64.tar.gz
+   test:
+    description: Passes or fails job based on given parameters.
+    parameters:
+      severity:
+        description: Severity of vulnerabilities High, Medium, Low, Informational.
+        type: string
+        default: "High"
+    steps:
+      - run:
+          command: |
+            set -e
+            cd arachni-1.5.1-0.5.12
+            RESULT=$(cat report.txt | grep -E "Severity" | tr -d [:space:] | sed 's/\[~\]/,/g')
+            echo "$RESULT" > temp
+            IFS=',' read -r -a array < temp
+            case << parameters.severity >> in High) for i in "${array[@]}"; do if [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Medium) for i in "${array[@]}"; do if [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Low) for i in "${array[@]}"; do if [ "$i" == "Severity:Low" ] || [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Informational) for i in "${array[@]}"; do if [ "$i" == "Severity:Informational" ] || [ "$i" == "Severity:Low" ] || [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; esac
 
   install-engine:
     description: "Install Sonarqube scanner"
@@ -29,7 +55,30 @@ commands:
           command: |
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-<< parameters.engine_version >>.zip
             unzip sonar-scanner-cli-<< parameters.engine_version >>.zip
-
+  scan:
+    executor: arachni_engine
+    description: Runs default arachni scan on target website.
+    parameters: 
+      site_name:
+        description: url of site to be scanned.
+        type: string
+      severity:
+        description: Severity of vulnerabilities High, Medium, Low, Informational.
+        type: string
+        default: "High"
+    steps:
+      - setup_arachni
+      - run:
+          command: |
+            cd arachni-1.5.1-0.5.12
+            bin/arachni << parameters.site_name >>
+            FILE=$(ls | grep -E "^ncar")
+            bin/arachni_reporter "$FILE" --reporter=txt:outfile=report.txt
+      - store_artifacts:
+          path: arachni-1.5.1-0.5.12/report.txt
+      - test:
+          severity: << parameters.severity >>
+  
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
     parameters:
@@ -102,12 +151,14 @@ jobs:
       - checkout
       - setup-environment
       - install-engine
+      - scan
       - code-analysis:
           login: << parameters.login >>
           host_url: <<parameters.host_url >>
           organization: << parameters.organization >>
           projectKey: << parameters.projectKey >>
           projectBaseDir: ./
+      
 
 workflows:
   build_test_deploy:
