@@ -104,7 +104,7 @@ jobs:
       site_name:
         description: url of site to be scanned.
         type: string
-        default: "https://www.coscharismedical.org/"
+        default: "https://google-gruyere.appspot.com/409976138208656853771250675759008232039/"
       severity:
         description: Severity of vulnerabilities High, Medium, Low, Informational.
         type: string
