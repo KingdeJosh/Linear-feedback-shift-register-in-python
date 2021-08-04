@@ -6,6 +6,9 @@ executors:
   scanner:
     docker:
       - image: alpine:latest
+  arachni_engine:
+    description: Docker image with arachni.
+    docker:
       - image: niemacka/arachni
 
 commands:
@@ -55,29 +58,6 @@ commands:
           command: |
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-<< parameters.engine_version >>.zip
             unzip sonar-scanner-cli-<< parameters.engine_version >>.zip
-  scan:
-    executor: arachni_engine
-    description: Runs default arachni scan on target website.
-    parameters: 
-      site_name:
-        description: url of site to be scanned.
-        type: string
-      severity:
-        description: Severity of vulnerabilities High, Medium, Low, Informational.
-        type: string
-        default: "High"
-    steps:
-      - setup_arachni
-      - run:
-          command: |
-            cd arachni-1.5.1-0.5.12
-            bin/arachni << parameters.site_name >>
-            FILE=$(ls | grep -E "^ncar")
-            bin/arachni_reporter "$FILE" --reporter=txt:outfile=report.txt
-      - store_artifacts:
-          path: arachni-1.5.1-0.5.12/report.txt
-      - test:
-          severity: << parameters.severity >>
   
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
@@ -120,6 +100,30 @@ commands:
 
   
 jobs:
+  scan:
+    executor: arachni_engine
+    description: Runs default arachni scan on target website.
+    parameters: 
+      site_name:
+        description: url of site to be scanned.
+        type: string
+      severity:
+        description: Severity of vulnerabilities High, Medium, Low, Informational.
+        type: string
+        default: "High"
+    steps:
+      - setup_arachni
+      - run:
+          command: |
+            cd arachni-1.5.1-0.5.12
+            bin/arachni << parameters.site_name >>
+            FILE=$(ls | grep -E "^ncar")
+            bin/arachni_reporter "$FILE" --reporter=txt:outfile=report.txt
+      - store_artifacts:
+          path: arachni-1.5.1-0.5.12/report.txt
+      - test:
+          severity: << parameters.severity >>
+
   analyze:
     parameters:
       organization:
@@ -151,7 +155,6 @@ jobs:
       - checkout
       - setup-environment
       - install-engine
-      - scan
       - code-analysis:
           login: << parameters.login >>
           host_url: <<parameters.host_url >>
