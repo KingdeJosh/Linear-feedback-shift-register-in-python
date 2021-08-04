@@ -8,6 +8,10 @@ executors:
     description: Docker image with arachni.
     docker:
       - image: niemacka/arachni
+  default:
+    description: |
+      This is default executor
+    machine: true
 
 commands:
   setup-environment:
@@ -31,6 +35,17 @@ commands:
           command: |
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-<< parameters.engine_version >>.zip
             unzip sonar-scanner-cli-<< parameters.engine_version >>.zip
+  
+
+  setup_zap:
+    description: downloads and extracts Zaproxy tarball.
+    steps:
+      - run:
+          command: |
+            wget https://github.com/zaproxy/zaproxy/releases/download/v2.10.0/ZAP_2.10.0_Linux.tar.gz; \
+            tar -xvzf ZAP_2.10.0_Linux.tar.gz ; \
+            rm ZAP_2.10.0_Linux.tar.gz
+
   setup_arachni:
     description: downloads and extracts arachni tarball.
     steps:
@@ -39,6 +54,8 @@ commands:
             wget https://github.com/Arachni/arachni/releases/download/v1.5.1/arachni-1.5.1-0.5.12-linux-x86_64.tar.gz; \
             tar -xvzf arachni-1.5.1-0.5.12-linux-x86_64.tar.gz ; \
             rm arachni-1.5.1-0.5.12-linux-x86_64.tar.gz
+  
+
   test:
     description: Passes or fails job based on given parameters.
     parameters:
@@ -98,9 +115,9 @@ commands:
       
   
 jobs:
-  scan:
-    executor: arachni_engine
-    description: Runs default arachni scan on target website.
+  zap-scan:
+    executor: default
+    description: Runs zap-baseline scan on target website.
     parameters: 
       site_name:
         description: url of site to be scanned.
@@ -111,7 +128,17 @@ jobs:
         type: string
         default: "High"
     steps:
-      - setup_arachni
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          command: echo "$(date +%U)-$(date +%Y)" > current_weak_information.txt
+          name: Create file with current year and weak information - needed for cache
+      - restore_cache:
+          keys:
+            - zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
+            - zap-check-data-v1-
+      - setup_zap
       - run:
           # run zap baseline against the server
           # Only fail on error code 1, which indicates at least one FAIL was found.
@@ -126,6 +153,21 @@ jobs:
                   -t https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ ;
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
             )
+      
+  arachni-scan:
+    executor: arachni_engine
+    description: Runs default arachni scan on target website.
+    parameters: 
+      site_name:
+        description: url of site to be scanned.
+        type: string
+        default: "https://google-gruyere.appspot.com/409976138208656853771250675759008232039/"
+      severity:
+        description: Severity of vulnerabilities High, Medium, Low, Informational.
+        type: string
+        default: "High"
+    steps:
+      - setup_arachni
       - run:
           command: |
             cd arachni-1.5.1-0.5.12
@@ -179,5 +221,5 @@ workflows:
   build_test_deploy:
     jobs:
       - analyze
-      - scan
+      - arachni-scan
       
