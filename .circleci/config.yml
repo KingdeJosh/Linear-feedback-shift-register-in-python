@@ -222,4 +222,4 @@ workflows:
     jobs:
       - analyze
       - arachni-scan
-      
+      - zap-scan
