@@ -150,7 +150,7 @@ jobs:
                docker run -i owasp/zap2docker-stable \
                 zap-cli quick-scan \
                 --self-contained \
-                --start-options '-config api.disablekey=true' https://62e1705a23ed.ngrok.io
+                --start-options '-config api.disablekey=true' https://google-gruyere.appspot.com/409976138208656853771250675759008232039/
             
                   
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
