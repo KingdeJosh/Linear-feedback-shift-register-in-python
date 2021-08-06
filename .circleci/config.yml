@@ -152,8 +152,7 @@ jobs:
                 zap-cli quick-scan \
                 --self-contained \
                 --start-options '-config api.disablekey=true' https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
-                -l Medium \ 
-                -l Low
+                -l Low 
 
               
                   
