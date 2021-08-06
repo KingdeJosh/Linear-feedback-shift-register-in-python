@@ -57,7 +57,7 @@ commands:
   
 
   test:
-    description: Passes or fails job based on given parameters.
+    description: Passes or fails arachni based on given parameters.
     parameters:
       severity:
         description: Severity of vulnerabilities High, Medium, Low, Informational.
@@ -150,7 +150,7 @@ jobs:
             (
               
               docker run -t owasp/zap2docker-weekly zap-baseline.py \
-                  -t https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \ 
+                  -t https://62e1705a23ed.ngrok.io \ 
                   -u https://raw.githubusercontent.com/mozilla-services/screenshots/master/.zap-baseline.conf;
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
             )
