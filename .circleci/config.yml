@@ -138,7 +138,12 @@ jobs:
           keys:
             - zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
             - zap-check-data-v1-
-      
+      - run:
+          command: |
+            cd ZAP_2.10.0
+            bin/arachni << parameters.site_name >>
+            FILE=$(ls | grep -E "^ncar")
+            bin/arachni_reporter "$FILE" --reporter=txt:outfile=report.txt
       - run:
           # run zap baseline against the server
           # Only fail on error code 1, which indicates at least one FAIL was found.
@@ -146,11 +151,13 @@ jobs:
           name: Run OWASP ZAP Baseline
           
           command: |
-            docker pull owasp/zap2docker-weekly
+            docker pull owasp/zap2docker-stable
             (
-              
-              docker run -t owasp/zap2docker-weekly zap-baseline.py \
-                  -t https://62e1705a23ed.ngrok.io ; 
+               docker run -i owasp/zap2docker-stable \
+                zap-cli quick-scan \
+                --self-contained \
+                --start-options '-config api.disablekey=true' https://62e1705a23ed.ngrok.io
+            
                   
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
             )
