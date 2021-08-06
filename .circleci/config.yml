@@ -149,7 +149,7 @@ jobs:
             docker pull owasp/zap2docker-stable
             (
                docker run -i owasp/zap2docker-stable \
-                zap-cli active-scan \
+                zap-cli quick-scan \
                 --self-contained \
                 --start-options '-config api.disablekey=true' https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
                 -l Medium
