@@ -138,6 +138,7 @@ jobs:
           keys:
             - zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
             - zap-check-data-v1-
+      
       - run:
           # run zap baseline against the server
           # Only fail on error code 1, which indicates at least one FAIL was found.
@@ -145,13 +146,13 @@ jobs:
           name: Run OWASP ZAP Baseline
           
           command: |
-            docker pull owasp/zap2docker-weekly
+            docker pull owasp/zap2docker-stable
             (
-               docker run -i owasp/zap2docker-weekly \
+               docker run -i owasp/zap2docker-stable zap-baseline.py \
                 zap-cli quick-scan \
                 --self-contained \
                 --start-options '-config api.disablekey=true' https://google-gruyere.appspot.com/409976138208656853771250675759008232039/
-            
+              
                   
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
             )
