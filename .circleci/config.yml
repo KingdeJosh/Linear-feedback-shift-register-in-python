@@ -145,9 +145,9 @@ jobs:
           name: Run OWASP ZAP Baseline
           
           command: |
-            docker pull owasp/zap2docker-stable
+            docker pull owasp/zap2docker-weekly
             (
-               docker run -i owasp/zap2docker-stable \
+               docker run -i owasp/zap2docker-weekly \
                 zap-cli quick-scan \
                 --self-contained \
                 --start-options '-config api.disablekey=true' https://google-gruyere.appspot.com/409976138208656853771250675759008232039/
