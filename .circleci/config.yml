@@ -148,11 +148,13 @@ jobs:
           command: |
             docker pull owasp/zap2docker-stable
             (
-              docker run --detach --name zap -u zap -p 8090:8090 -d owasp/zap2docker-stable zap.sh -daemon -port 8090 -host 0.0.0.0 -config api.disablekey=true       
-              docker exec zap zap-cli open-url 'https://google-gruyere.appspot.com/409976138208656853771250675759008232039/'
-              docker exec zap zap-cli active-scan 'https://google-gruyere.appspot.com/409976138208656853771250675759008232039/'
-              docker logs zap
-             
+              docker run --detach --name zap -u zap -v "$(pwd)/reports":/zap/reports/:rw \
+                -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
+                -config api.disablekey=true
+              docker exec zap zap-cli --verbose quick-scan http://www.itsecgames.com
+              docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.json --output-format json
+              
+
               
                   
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
