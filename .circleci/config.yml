@@ -157,12 +157,16 @@ jobs:
                 --self-contained \
                 --start-options '-config api.disablekey=true' \
                 --spider\
-                https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ 
+                https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
+                -l High
 
+              docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html
+              
             
+
               
                   
-              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              
             )
       - save_cache:
           key: zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
