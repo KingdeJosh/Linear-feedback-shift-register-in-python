@@ -154,7 +154,8 @@ jobs:
                 --self-contained \
                 --start-options '-config api.disablekey=true' \
                 --spider\
-                https://google-gruyere.appspot.com/409976138208656853771250675759008232039/        
+                https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
+                -l High     
               
                   
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
