@@ -148,12 +148,9 @@ jobs:
           command: |
             docker pull owasp/zap2docker-stable
             (
-              docker run --detach --name zap -u zap -v "$(pwd)/reports":/zap/reports/:rw \
-                -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
-                -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true \
-                -config api.disablekey=true
-              
-              docker exec zap zap-cli quick-scan \
+                          
+              docker run  --name zap -i owasp/zap2docker-stable \
+                zap-cli quick-scan \
                 --self-contained \
                 --start-options '-config api.disablekey=true' \
                 --spider\
@@ -162,11 +159,9 @@ jobs:
 
               docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html
               
-            
-
               
                   
-              
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
             )
       - save_cache:
           key: zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
