@@ -148,11 +148,12 @@ jobs:
           command: |
             docker pull owasp/zap2docker-stable
             (
-                          
-              docker run  --name zap -i owasp/zap2docker-stable \
-                zap-cli quick-scan \
-                --self-contained \
-                --start-options '-config api.disablekey=true' \
+              docker run --detach --name zap -u zap -p 8090:8090 -v "$(pwd)/reports":/zap/reports/:rw  \
+                -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0  \
+                -port 8090 \
+                -config api.disablekey=true        
+              docker exec zap \
+                zap-cli active-scan \
                 --spider\
                 https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
                 -l High     
