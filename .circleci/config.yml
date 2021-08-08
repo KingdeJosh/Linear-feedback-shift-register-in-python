@@ -154,8 +154,8 @@ jobs:
                 --start-options '-config api.disablekey=true' \
                 --spider\
                 https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
-                -l High\
-                && zap-cli report -o owasp-quick-scan-report.html -f html
+                -l High
+              docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html
                 
               
              
