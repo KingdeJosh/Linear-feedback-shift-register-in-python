@@ -150,7 +150,9 @@ jobs:
             (
                docker run -i owasp/zap2docker-stable \
                 zap-cli quick-scan \
+                --self-contained \
                 --start-options '-config api.disablekey=true' \
+                --spider\
                 https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
                 -l Low 
 
