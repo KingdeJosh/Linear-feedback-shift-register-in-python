@@ -153,9 +153,9 @@ jobs:
                 zap-cli quick-scan \
                 --self-contained \
                 --start-options '-config api.disablekey=true' \
-                --spider\
-                https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
-                report -o owasp-quick-scan-report.json --output-format json
+                --spider report -o owasp-quick-scan-report.json --output-format json\
+                https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ 
+                
               
           
               
