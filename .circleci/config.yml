@@ -163,10 +163,10 @@ jobs:
           key: zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
           paths:
             - zap-audit-data
-      - persist_to_workspace:
-          paths:
-            - odc-reports
-          root: .
+      #- persist_to_workspace:
+         # paths:
+          #  - odc-reports
+          #root: .
       
   arachni-scan:
     executor: arachni_engine
