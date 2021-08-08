@@ -150,6 +150,7 @@ jobs:
             (
                docker run -i owasp/zap2docker-stable \
                 zap-cli quick-scan \
+                --start-options '-config api.disablekey=true' \
                 https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
                 -l Low 
 
@@ -233,5 +234,5 @@ workflows:
   build_test_deploy:
     jobs:
       - sonar-analyze
-      - arachni-scan
+      #- arachni-scan
       - zap-scan
