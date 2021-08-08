@@ -155,7 +155,7 @@ jobs:
                 --spider\
                 https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
                 -l Medium \
-                report -o /zap/reports/owasp-quick-scan-report.html --output-format html
+                report -o /zap/reports/owasp-quick-scan-report.json --output-format json
               
              
 
@@ -238,6 +238,6 @@ jobs:
 workflows:
   build_test_deploy:
     jobs:
-      - sonar-analyze
+      #- sonar-analyze
       #- arachni-scan
       - zap-scan
