@@ -150,12 +150,13 @@ jobs:
             (
               docker run -i owasp/zap2docker-stable \
                 zap-cli quick-scan \
+                report -o owasp-quick-scan-report.html --output-format html\
                 --self-contained \
                 --start-options '-config api.disablekey=true' \
                 --spider\
                 https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
-                -l Medium \
-                -report /zap/reports/owasp-quick-scan-report.json 
+                -l Medium 
+                
               
              
 
