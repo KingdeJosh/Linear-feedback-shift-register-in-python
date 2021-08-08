@@ -152,9 +152,7 @@ jobs:
                 -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
                 -config api.disablekey=true
               docker exec zap zap-cli quick-scan http://www.itsecgames.com
-              docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.json --output-format json
               
-
               
                   
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
