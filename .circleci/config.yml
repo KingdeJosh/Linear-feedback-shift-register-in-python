@@ -164,9 +164,8 @@ jobs:
              
               docker run --detach --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
                 -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
-                -config api.disablekey=true && zap-cli -v quick-scan -l Informational --spider http://testhtml5.vulnweb.com/
+                -config api.disablekey=true && zap zap-cli -v quick-scan -l Informational --spider http://testhtml5.vulnweb.com/
               
-              docker exec zap zap-cli -v quick-scan -l Informational --spider http://testhtml5.vulnweb.com/
               docker exec zap zap-cli -v report -o zap/reports/report.html -f html
               docker exec zap zap-cli -v shutdown
               
