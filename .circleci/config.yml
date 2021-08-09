@@ -167,7 +167,7 @@ jobs:
                 -config api.disablekey=true
               docker exec zap zap-cli --zap-path /zap start
               docker exec zap zap-cli -v quick-scan -l High --spider http://testhtml5.vulnweb.com/
-              docker exec zap zap-cli -v report -o /zap/reports/report.html -f html
+              docker exec zap zap-cli -v report -o /zap/reports/report1.html -f html
               docker exec zap zap-cli -v shutdown
               
               
