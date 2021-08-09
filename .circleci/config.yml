@@ -162,7 +162,7 @@ jobs:
             docker pull owasp/zap2docker-stable
             (
               docker run --detach --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
-                -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
+                -i owasp/zap2docker-stable zap-baseline.py -daemon -host 0.0.0.0 -port 8080 \
                 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true \
                 -config api.disablekey=true
               docker exec zap zap-cli --verbose quick-scan  https://google-gruyere.appspot.com/409976138208656853771250675759008232039/
