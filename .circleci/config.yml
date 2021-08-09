@@ -118,26 +118,17 @@ jobs:
   zap-scan:
     executor: default
     description: Runs zap-baseline scan on target website.
-    parameters: 
-      site_name:
-        description: url of site to be scanned.
-        type: string
-        default: "https://google-gruyere.appspot.com/409976138208656853771250675759008232039/"
-      severity:
-        description: Severity of vulnerabilities High, Medium, Low, Informational.
-        type: string
-        default: "High"
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          command: echo "$(date +%U)-$(date +%Y)" > current_weak_information.txt
-          name: Create file with current year and weak information - needed for cache
-      - restore_cache:
-          keys:
-            - zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
-            - zap-check-data-v1-
+      #- checkout
+      #- attach_workspace:
+        #  at: .
+      #- run:
+       #   command: echo "$(date +%U)-$(date +%Y)" > current_weak_information.txt
+        #  name: Create file with current year and weak information - needed for cache
+     # - restore_cache:
+      #    keys:
+       #     - zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
+        #    - zap-check-data-v1-
       
       - run:
           # run zap baseline against the server
@@ -160,22 +151,21 @@ jobs:
                 #https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
           command: |
             docker pull owasp/zap2docker-stable
-            (
-             
+            (             
               docker run --detach --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
                 -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
                 -config api.disablekey=true
               docker exec zap zap-cli --zap-path /zap start
               docker exec zap zap-cli -v quick-scan -l High --spider http://testhtml5.vulnweb.com/
-              docker exec zap zap-cli -v report -o /zap/reports/report1.html -f html
+              docker exec zap zap-cli -v report -o /zap/reports/report.html -f html
               docker exec zap zap-cli -v shutdown
               
-              
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;              
             )
-      - save_cache:
-          key: zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
-          paths:
-            - zap-audit-data
+      #- save_cache:
+       #   key: zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
+        #  paths:
+            #- zap-audit-data
       #- persist_to_workspace:
          # paths:
           #  - odc-reports
