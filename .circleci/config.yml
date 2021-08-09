@@ -163,7 +163,8 @@ jobs:
                 --start-options '-config api.disablekey=true' \
                 --spider\
                 https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
-                -l  Medium
+              
+              docker exec zap zap-cli --verbose quick-scan
               docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html
                   
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
