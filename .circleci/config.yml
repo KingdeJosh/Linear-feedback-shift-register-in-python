@@ -152,17 +152,16 @@ jobs:
                # -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
                 #-config api.disablekey=true
               #docker exec  --zap-path zap  zap-cli quick-scan http://www.itsecgames.com
+               #docker run  --name zap -i owasp/zap2docker-stable \
+                #zap-cli quick-scan \
+                #--self-contained \
+                #--start-options '-config api.disablekey=true' \
+                #--spider\
+                #https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
           command: |
             docker pull owasp/zap2docker-stable
             (
-              
-
-               docker run  --name zap -i owasp/zap2docker-stable \
-                zap-cli quick-scan \
-                --self-contained \
-                --start-options '-config api.disablekey=true' \
-                --spider\
-                https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
+              docker run --detach --name zap -u zap -v               
               
               docker exec zap zap-cli --verbose quick-scan  https://google-gruyere.appspot.com/409976138208656853771250675759008232039/
               docker exec zap zap-cli --verbose report -o /zap/reports/owasp-quick-scan-report.html --output-format html
