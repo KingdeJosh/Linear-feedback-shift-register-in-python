@@ -170,7 +170,7 @@ jobs:
               docker exec zap zap-cli -v report -o /zap/reports/report.html -f html
               docker exec zap zap-cli -v shutdown
               
-              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              
             )
       - save_cache:
           key: zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
