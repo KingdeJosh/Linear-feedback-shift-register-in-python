@@ -148,10 +148,15 @@ jobs:
           command: |
             docker pull owasp/zap2docker-stable
             (
-              docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
-                -t https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ -g gen.conf -r testreport.html
               
-              
+
+               docker run  --name zap -i owasp/zap2docker-stable \
+                zap-cli quick-scan \
+                --self-contained \
+                --start-options '-config api.disablekey=true' \
+                --spider\
+                https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
+                -l  Medium
                   
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
             )
