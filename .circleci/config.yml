@@ -148,7 +148,7 @@ jobs:
           command: |
             docker pull owasp/zap2docker-stable
             (
-              docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py \
+              docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
                 -t https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ -g gen.conf -r testreport.html
               
               
