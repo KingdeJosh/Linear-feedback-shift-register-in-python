@@ -165,9 +165,11 @@ jobs:
                 -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8089 \
                 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true \
                 -config api.disablekey=true 
-              docker exec zap-cli -v quick-scan -l Informational --spider http://testhtml5.vulnweb.com/
-              docker exec zap-cli -v report -o /report.html -f html
-              docker exec zap-cli -v shutdown
+              
+              docker exec zap zap-cli -v start 
+              docker exec zap zap-cli -v quick-scan -l Informational --spider http://testhtml5.vulnweb.com/
+              docker exec zap zap-cli -v report -o /report.html -f html
+              docker exec zap zap-cli -v shutdown
               
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
             )
