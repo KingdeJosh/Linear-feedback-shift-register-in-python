@@ -4,10 +4,6 @@ executors:
   scanner:
     docker:
       - image: alpine:latest
-  arachni_engine:
-    description: Docker image with arachni.
-    docker:
-      - image: niemacka/arachni
   default:
     description: |
       This is default executor
@@ -37,41 +33,8 @@ commands:
             unzip sonar-scanner-cli-<< parameters.engine_version >>.zip
   
 
-  setup_zap:
-    description: downloads and extracts Zaproxy tarball.
-    steps:
-      - run:
-          command: |
-            wget https://github.com/zaproxy/zaproxy/releases/download/v2.10.0/ZAP_2.10.0_Linux.tar.gz; \
-            tar -xvzf ZAP_2.10.0_Linux.tar.gz ; \
-            rm ZAP_2.10.0_Linux.tar.gz
 
-  setup_arachni:
-    description: downloads and extracts arachni tarball.
-    steps:
-      - run:
-          command: |
-            wget https://github.com/Arachni/arachni/releases/download/v1.5.1/arachni-1.5.1-0.5.12-linux-x86_64.tar.gz; \
-            tar -xvzf arachni-1.5.1-0.5.12-linux-x86_64.tar.gz ; \
-            rm arachni-1.5.1-0.5.12-linux-x86_64.tar.gz
-  
 
-  test:
-    description: Passes or fails arachni based on given parameters.
-    parameters:
-      severity:
-        description: Severity of vulnerabilities High, Medium, Low, Informational.
-        type: string
-        default: "High"
-    steps:
-      - run:
-          command: |
-            set -e
-            cd arachni-1.5.1-0.5.12
-            RESULT=$(cat report.txt | grep -E "Severity" | tr -d [:space:] | sed 's/\[~\]/,/g')
-            echo "$RESULT" > temp
-            IFS=',' read -r -a array < temp
-            case << parameters.severity >> in High) for i in "${array[@]}"; do if [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Medium) for i in "${array[@]}"; do if [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Low) for i in "${array[@]}"; do if [ "$i" == "Severity:Low" ] || [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Informational) for i in "${array[@]}"; do if [ "$i" == "Severity:Informational" ] || [ "$i" == "Severity:Low" ] || [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; esac
 
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
@@ -171,30 +134,7 @@ jobs:
           #  - odc-reports
           #root: .
       
-  arachni-scan:
-    executor: arachni_engine
-    description: Runs default arachni scan on target website.
-    parameters: 
-      site_name:
-        description: url of site to be scanned.
-        type: string
-        default: "https://google-gruyere.appspot.com/409976138208656853771250675759008232039/"
-      severity:
-        description: Severity of vulnerabilities High, Medium, Low, Informational.
-        type: string
-        default: "High"
-    steps:
-      - setup_arachni
-      - run:
-          command: |
-            cd arachni-1.5.1-0.5.12
-            bin/arachni << parameters.site_name >>
-            FILE=$(ls | grep -E "^ncar")
-            bin/arachni_reporter "$FILE" --reporter=txt:outfile=report.txt
-      - store_artifacts:
-          path: arachni-1.5.1-0.5.12/report.txt
-      - test:
-          severity: << parameters.severity >>
+  
           
   sonar-analyze:
     parameters:
