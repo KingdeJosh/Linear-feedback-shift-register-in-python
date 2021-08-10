@@ -7,7 +7,8 @@ executors:
   default:
     description: |
       This is default executor
-    machine: true
+    machine: 
+      image: ubuntu-2004:202107-02
 
 commands:
   setup-environment:
