@@ -168,7 +168,7 @@ jobs:
     executor: scanner
     steps:
       - checkout
-      - setup-environment
+      #- setup-environment
       - install-engine
       - code-analysis:
           login: << parameters.login >>
