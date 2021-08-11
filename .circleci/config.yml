@@ -156,15 +156,7 @@ jobs:
       projectVersion:
         type: env_var_name
         default: CIRCLE_BUILD_NUM
-      github_oauth:
-        type: env_var_name
-        default: SONARQUBE_GITHUB_OAUTH
-      github_repository:
-        type: env_var_name
-        default: SONAR_ORGANIZATION
-      github_pullRequest:
-        type: env_var_name
-        default: CIRCLECI_PULL_REQUEST_NUMBER
+
     executor: scanner
     steps:
       - checkout
