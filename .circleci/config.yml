@@ -145,8 +145,8 @@ jobs:
         type: env_var_name
         default: SONAR_ORGANIZATION
       host_url:
-        type: env_var_name
-        default: SONAR_URL
+        type: string
+        default: "https://sonarcloud.io"
       login:
         type: env_var_name
         default: SONAR_TOKEN
@@ -156,11 +156,9 @@ jobs:
       projectVersion:
         type: env_var_name
         default: CIRCLE_BUILD_NUM
-
     executor: scanner
     steps:
       - checkout
-      #- setup-environment
       - install-engine
       - code-analysis:
           login: << parameters.login >>
