@@ -70,7 +70,7 @@ commands:
           name: "Code analysis"
           command: |
             export SONAR_RUNNER_OPTS="<< parameters.runner_opts >>"
-            mvn -f /home/circleci/project/pom.xml sonar:sonar \
+            mvn -f /home/circleci/project/pom/pom.xml sonar:sonar \
               -Dsonar.host.url=${<< parameters.host_url >>} \
               -Dsonar.login=${<< parameters.login >>} \
               -Dsonar.projectKey=${<< parameters.projectKey >>} \
