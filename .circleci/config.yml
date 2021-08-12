@@ -70,6 +70,7 @@ commands:
           name: "Code analysis"
           command: |
             export SONAR_RUNNER_OPTS="<< parameters.runner_opts >>"
+            mvn clean package \
             mvn sonar:sonar \
               -Dsonar.host.url=${<< parameters.host_url >>} \
               -Dsonar.login=${<< parameters.login >>} \
@@ -77,7 +78,7 @@ commands:
               -Dsonar.projectBaseDir=<< parameters.projectBaseDir >> \
               -Dsonar.organization=${<< parameters.organization >>} \
               -Dsonar.sources=<< parameters.sources >> \
-              -Dsonar.exclusions="<< parameters.exclusions >>"
+              -Dsonar.exclusions="<< parameters.exclusions >>" \
               -Dsonar.java.binaries=target/classes
       
   
