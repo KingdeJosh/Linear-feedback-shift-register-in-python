@@ -70,7 +70,7 @@ commands:
           name: "Code analysis"
           command: |
             export SONAR_RUNNER_OPTS="<< parameters.runner_opts >>"
-            mvn verify sonar:sonar >>/bin/sonar-scanner \
+            mvn verify sonar:sonar \
               -Dsonar.host.url=${<< parameters.host_url >>} \
               -Dsonar.login=${<< parameters.login >>} \
               -Dsonar.projectKey=${<< parameters.projectKey >>} \
