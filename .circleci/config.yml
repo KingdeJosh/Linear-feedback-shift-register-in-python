@@ -5,15 +5,16 @@ version: 2.1
 executors:
   scanner:
     docker:
-      - image: alpine:latest
-  arachni_engine:
-    description: Docker image with arachni.
-    docker:
-      - image: niemacka/arachni
+      - image: circleci/openjdk:11-jdk
+  default:
+    description: |
+      This is default executor
+    machine: 
+      image: ubuntu-2004:202107-02
 
 commands:
   setup-environment:
-    description: "Setup requirements"
+    description: "Setup Sonarcloud requirements"
     steps:
       - run:
           name: "Setup environment"
@@ -21,31 +22,6 @@ commands:
             apk update
             apk add --no-cache zip openjdk11-jre-headless
             
-  setup_arachni:
-    description: downloads and extracts arachni tarball.
-    steps:
-      - run:
-          command: |
-            wget https://github.com/Arachni/arachni/releases/download/v1.5.1/arachni-1.5.1-0.5.12-linux-x86_64.tar.gz; \
-            tar -xvzf arachni-1.5.1-0.5.12-linux-x86_64.tar.gz ; \
-            rm arachni-1.5.1-0.5.12-linux-x86_64.tar.gz
-  test:
-    description: Passes or fails job based on given parameters.
-    parameters:
-      severity:
-        description: Severity of vulnerabilities High, Medium, Low, Informational.
-        type: string
-        default: "High"
-    steps:
-      - run:
-          command: |
-            set -e
-            cd arachni-1.5.1-0.5.12
-            RESULT=$(cat report.txt | grep -E "Severity" | tr -d [:space:] | sed 's/\[~\]/,/g')
-            echo "$RESULT" > temp
-            IFS=',' read -r -a array < temp
-            case << parameters.severity >> in High) for i in "${array[@]}"; do if [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Medium) for i in "${array[@]}"; do if [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Low) for i in "${array[@]}"; do if [ "$i" == "Severity:Low" ] || [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; Informational) for i in "${array[@]}"; do if [ "$i" == "Severity:Informational" ] || [ "$i" == "Severity:Low" ] || [ "$i" == "Severity:Medium" ] || [ "$i" == "Severity:High" ]; then echo "match"; exit 1; else echo "ok"; fi; done; ;; esac
-
   install-engine:
     description: "Install Sonarqube scanner"
     parameters:
@@ -59,6 +35,10 @@ commands:
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-<< parameters.engine_version >>.zip
             unzip sonar-scanner-cli-<< parameters.engine_version >>.zip
   
+
+
+
+
   code-analysis:
     description: "Run Sonarqube scanner for code analysis"
     parameters:
@@ -95,65 +75,91 @@ commands:
               -Dsonar.login=${<< parameters.login >>} \
               -Dsonar.projectKey=${<< parameters.projectKey >>} \
               -Dsonar.projectBaseDir=<< parameters.projectBaseDir >> \
+              -Dsonar.organization=${<< parameters.organization >>} \
               -Dsonar.sources=<< parameters.sources >> \
               -Dsonar.exclusions="<< parameters.exclusions >>"
-
+              -Dsonar.java.binaries=target/classes
+      
   
 jobs:
-  scan:
-    executor: arachni_engine
-    description: Runs default arachni scan on target website.
-    parameters: 
-      site_name:
-        description: url of site to be scanned.
-        type: string
-      severity:
-        description: Severity of vulnerabilities High, Medium, Low, Informational.
-        type: string
-        default: "High"
+  zap-scan:
+    executor: default
+    description: Runs zap-baseline scan on target website.
     steps:
-      - setup_arachni
+      #- checkout
+      #- attach_workspace:
+        #  at: .
+      #- run:
+       #   command: echo "$(date +%U)-$(date +%Y)" > current_weak_information.txt
+        #  name: Create file with current year and weak information - needed for cache
+     # - restore_cache:
+      #    keys:
+       #     - zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
+        #    - zap-check-data-v1-
+      
       - run:
+          # run zap baseline against the server
+          # Only fail on error code 1, which indicates at least one FAIL was found.
+          # error codes 2 & 3 indicate WARN or other, and should not break the run
+          name: Run OWASP ZAP Baseline
+          #docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
+           #     -t https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ -g gen.conf -r testreport.html
+            #  docker run -i owasp/zap2docker-stable zap-cli quick-scan --self-contained \
+             #   --start-options --spider '-config api.disablekey=true' https://google-gruyere.appspot.com/409976138208656853771250675759008232039/
+              #docker run --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
+               # -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
+                #-config api.disablekey=true
+              #docker exec  --zap-path zap  zap-cli quick-scan http://www.itsecgames.com
+               #docker run  --name zap -i owasp/zap2docker-stable \
+                #zap-cli quick-scan \
+                #--self-contained \
+                #--start-options '-config api.disablekey=true' \
+                #--spider\
+                #https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
           command: |
-            cd arachni-1.5.1-0.5.12
-            bin/arachni << parameters.site_name >>
-            FILE=$(ls | grep -E "^ncar")
-            bin/arachni_reporter "$FILE" --reporter=txt:outfile=report.txt
-      - store_artifacts:
-          path: arachni-1.5.1-0.5.12/report.txt
-      - test:
-          severity: << parameters.severity >>
-
-  analyze:
+            docker pull owasp/zap2docker-stable
+            (             
+              docker run --detach --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
+                -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
+                -config api.disablekey=true
+              docker exec zap zap-cli --zap-path /zap -v start -o '-config api.disablekey=true'
+              docker exec zap zap-cli -v quick-scan --spider http://testhtml5.vulnweb.com/
+              docker exec zap zap-cli -v report -o /zap/reports/report.html -f html
+              docker exec zap zap-cli -v shutdown
+              
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;              
+            )
+      #- save_cache:
+       #   key: zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
+        #  paths:
+            #- zap-audit-data
+      #- persist_to_workspace:
+         # paths:
+          #  - odc-reports
+          #root: .
+      
+  
+          
+  sonar-analyze:
     parameters:
       organization:
         type: env_var_name
-        default: SONARQUBE_SERVER_ORGANIZATION
+        default: SONAR_ORGANIZATION
       host_url:
         type: env_var_name
-        default: SONARQUBE_SERVER_URL
+        default: SONAR_URL
       login:
         type: env_var_name
-        default: SONARQUBE_SERVER_LOGIN
+        default: SONAR_TOKEN
       projectKey:
         type: env_var_name
-        default: SONARQUBE_PROJECT_KEY #CIRCLE_PROJECT_REPONAME --
+        default: SONAR_PROJECT_KEY #CIRCLE_PROJECT_REPONAME --
       projectVersion:
         type: env_var_name
         default: CIRCLE_BUILD_NUM
-      github_oauth:
-        type: env_var_name
-        default: SONARQUBE_GITHUB_OAUTH
-      github_repository:
-        type: env_var_name
-        default: SONARQUBE_SERVER_ORGANIZATION
-      github_pullRequest:
-        type: env_var_name
-        default: CIRCLECI_PULL_REQUEST_NUMBER
     executor: scanner
     steps:
       - checkout
-      - setup-environment
       - install-engine
       - code-analysis:
           login: << parameters.login >>
@@ -161,10 +167,10 @@ jobs:
           organization: << parameters.organization >>
           projectKey: << parameters.projectKey >>
           projectBaseDir: ./
-      
 
 workflows:
   build_test_deploy:
     jobs:
-      - analyze
-    
+      - sonar-analyze
+      #- arachni-scan
+      - zap-scan
