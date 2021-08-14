@@ -95,15 +95,8 @@ jobs:
       #    keys:
        #     - zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
         #    - zap-check-data-v1-
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --no-cache \
-              py-pip=9.0.0-r1
-            apk --no-cache add curl
-            pip install wget
-            pip install \
-              docker-compose==1.12.0 
+      - setup_remote_docker:
+          version: 19.03.13
       - run:
           # run zap baseline against the server
           # Only fail on error code 1, which indicates at least one FAIL was found.
