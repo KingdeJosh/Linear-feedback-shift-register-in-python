@@ -70,20 +70,19 @@ commands:
           name: "Code analysis"
           command: |
             export SONAR_RUNNER_OPTS="<< parameters.runner_opts >>"
-            mvn sonar:sonar \
+            eval ./sonar-scanner-<< parameters.engine_version >>/bin/sonar-scanner \
               -Dsonar.host.url=${<< parameters.host_url >>} \
               -Dsonar.login=${<< parameters.login >>} \
               -Dsonar.projectKey=${<< parameters.projectKey >>} \
               -Dsonar.projectBaseDir=<< parameters.projectBaseDir >> \
               -Dsonar.organization=${<< parameters.organization >>} \
               -Dsonar.sources=<< parameters.sources >> \
-              -Dsonar.exclusions="<< parameters.exclusions >>" \
-              -Dsonar.java.binaries=target/classes
+              -Dsonar.exclusions="<< parameters.exclusions >>"
       
   
 jobs:
   zap-scan:
-    executor: default
+    executor: scanner
     description: Runs zap-baseline scan on target website.
     steps:
       #- checkout
