@@ -102,7 +102,15 @@ jobs:
           # Only fail on error code 1, which indicates at least one FAIL was found.
           # error codes 2 & 3 indicate WARN or other, and should not break the run
           name: Run OWASP ZAP Baseline
-          #docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
+          command: |
+            docker run --detach --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
+              -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
+              -config api.disablekey=true
+            docker exec zap zap-cli --zap-path /zap -v start -o '-config api.disablekey=true'
+            docker exec zap zap-cli -v quick-scan --spider http://testhtml5.vulnweb.com/
+            docker exec zap zap-cli -v report -o /zap/reports/report.html -f html
+            docker exec zap zap-cli -v shutdown              
+             #docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
            #     -t https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ -g gen.conf -r testreport.html
             #  docker run -i owasp/zap2docker-stable zap-cli quick-scan --self-contained \
              #   --start-options --spider '-config api.disablekey=true' https://google-gruyere.appspot.com/409976138208656853771250675759008232039/
@@ -116,17 +124,6 @@ jobs:
                 #--start-options '-config api.disablekey=true' \
                 #--spider\
                 #https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
-          command: |
-            docker run --detach --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
-              -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
-              -config api.disablekey=true
-            docker exec zap zap-cli --zap-path /zap -v start -o '-config api.disablekey=true'
-            docker exec zap zap-cli -v quick-scan --spider http://testhtml5.vulnweb.com/
-            docker exec zap zap-cli -v report -o /zap/reports/report.html -f html
-            docker exec zap zap-cli -v shutdown
-              
-            if [ $? -ne 1 ]; then exit 0; else exit 1; fi;              
-            
       #- save_cache:
        #   key: zap-check-data-v1-{{ checksum "current_weak_information.txt" }}
         #  paths:
