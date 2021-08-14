@@ -85,9 +85,9 @@ jobs:
     executor: scanner
     description: Runs zap-baseline scan on target website.
     steps:
-      #- checkout
-      #- attach_workspace:
-        #  at: .
+      - checkout
+      - attach_workspace:
+          at: .
       #- run:
        #   command: echo "$(date +%U)-$(date +%Y)" > current_weak_information.txt
         #  name: Create file with current year and weak information - needed for cache
@@ -116,6 +116,7 @@ jobs:
                 #--spider\
                 #https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ \
           command: |
+            docker pull owasp/zap2docker-stable
             docker run --detach --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
               -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 \
               -config api.disablekey=true
