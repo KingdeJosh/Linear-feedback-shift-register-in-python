@@ -110,7 +110,7 @@ jobs:
               --spider\
               http://localhost:9000          
             docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
-              -t http://localhost:9000 -g gen.conf -r testreport.html
+              -t https://google-gruyere.appspot.com/409976138208656853771250675759008232039/ -g gen.conf -r testreport.html
             #  docker run -i owasp/zap2docker-stable zap-cli quick-scan --self-contained \
              #   --start-options --spider '-config api.disablekey=true' https://google-gruyere.appspot.com/409976138208656853771250675759008232039/
               #docker run --name zap -u root -v "$(pwd)/reports":/zap/reports/:rw \
