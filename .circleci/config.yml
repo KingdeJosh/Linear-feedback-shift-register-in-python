@@ -103,7 +103,7 @@ jobs:
           # error codes 2 & 3 indicate WARN or other, and should not break the run
           name: Run OWASP ZAP Baseline
           command: |
-            curl -Is http://localhost:9000 | head -1
+            curl -Is http://www.shellhacks.com | head -1
             docker run  --name zap -i owasp/zap2docker-stable \
               zap-cli quick-scan \
               --self-contained \
